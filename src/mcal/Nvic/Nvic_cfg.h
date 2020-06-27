@@ -1,3 +1,6 @@
+#ifndef NVIC_CFG_H_
+#define NVIC_CFG_H_
+
 
 /*
 *	please choose form the followings
@@ -8,4 +11,9 @@
 
 */
 
-#define NVIC_GROUPING_SYSTEM   NVIC_GROUPING_SYSTEM_XXXs
+#define NVIC_GROUPING_SYSTEM   NVIC_GROUPING_SYSTEM_XXX
+
+
+#define NVIC_ACTIVATED_INT_SIZE  3
+
+#endif
