@@ -1,6 +1,8 @@
 #ifndef NVIC_H_
 #define NVIC_H_
 
+#include "platform_Types.h"  
+
 typedef enum{
 	NVIC_GPIO_Port_A,
 	NVIC_GPIO_Port_B,
@@ -13,8 +15,7 @@ typedef enum{
 typedef struct{
 	NVIC_IntType	Interupt_Number;
 	uint8			Group_Priority;
-	uint8			SubGroup_Priority
-	
+	uint8			SubGroup_Priority;
 }NVIC_CfgType;
 
 

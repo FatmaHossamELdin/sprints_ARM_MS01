@@ -1,52 +1,43 @@
+#define CPU_SWITCH_TO_PRIVMODE()   					__asm("SVC #1")
+
+
+#define CPU_SWITCH_TO_USERMODE()   __asm("MOV R0, 0x1\n");\
+														 			 __asm("MSR CONTROL, R0\n")
+
+
+#define CPU_DISABLE_ALL_Interupts()		__asm ("CPSID i")
+#define CPU_ENABLE_ALL_Interupts()		__asm ("CPSIE i")
+
+
+void Cpu_StartCriticalSection(void);
+void Cpu_StopCriticalSection(void);
+
 /**********************************************************************************************************************
 
  *  FILE DESCRIPTION
  *  -------------------------------------------------------------------------------------------------------------------
- *         File:  Mcu_Hw.h
+ *         File:  <Write File Name>
  *       Module:  -
  *
- *  Description:  Contains all MCU Registers Definitions     
+ *  Description:  <Write File DESCRIPTION here>     
  *  
  *********************************************************************************************************************/
-#ifndef MCU_HW_H
-#define MCU_HW_H
+#ifndef CPU_DRIVER_H_
+#define CPU_DRIVER_H_
 
 /**********************************************************************************************************************
  * INCLUDES
  *********************************************************************************************************************/
-#include "platform_Types.h" 
 
 
 /**********************************************************************************************************************
  *  GLOBAL CONSTANT MACROS
  *********************************************************************************************************************/
-#define APINT            *((uint32*)0xE000ED0C)
-
-#define EN0Adress	(uint32*)0xE000E100
-#define DIS0Adress  (uint32*)0xE000E180
-#define PRI0Adress	(uint32*)0xE000E400
-
-
-#define SYSCTR_BASE_ADDRESS              0x400FE000
-#define RCGCGPIO_OFFSET                  0x608
-
-#define RCGCGPIO                         *((volatile uint32*)(SYSCTR_BASE_ADDRESS+RCGCGPIO_OFFSET)
-
-#define GPIO_APB_BASE_ADDRESS_A          0x40004000
-#define GPIO_APB_BASE_ADDRESS_B          0x40005000
-#define GPIO_APB_BASE_ADDRESS_C          0x40006000
-#define GPIO_APB_BASE_ADDRESS_D          0x40007000
-#define GPIO_APB_BASE_ADDRESS_E          0x40024000
-#define GPIO_APB_BASE_ADDRESS_F          0x40025000
-
-#define GPIODIR_OFFSET			0x400
-
 
 
 /**********************************************************************************************************************
  *  GLOBAL FUNCTION MACROS
  *********************************************************************************************************************/
-#define GPIODIR(BaseAddr)            *((volatile uint32*)BaseAddr+GPIODIR_OFFSET) 
 
 
 /**********************************************************************************************************************
@@ -64,9 +55,8 @@
  *********************************************************************************************************************/
 
  
-#endif  /* MCU_HW_H */
+#endif  /* FILE_NAME_H */
 
 /**********************************************************************************************************************
  *  END OF FILE: Std_Types.h
  *********************************************************************************************************************/
-
