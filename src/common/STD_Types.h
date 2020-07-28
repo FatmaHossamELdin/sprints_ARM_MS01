@@ -1,11 +1,14 @@
 #ifndef STD_TYPES_H_
 #define STD_TYPES_H_
 
+#define NULL_PTR       ((void *)0)
+#define NULL					  0
+
 
 typedef enum{
-	Not_OK,
-	OK
-}ReturnType;
+	E_NOT_OK,
+	E_OK
+}Std_ReturnType;
 
 
 typedef enum{
@@ -16,6 +19,6 @@ typedef enum{
 typedef enum{
 	DISABLE,
 	ENABLE
-}StatusType;
+}boolean;
 
 #endif

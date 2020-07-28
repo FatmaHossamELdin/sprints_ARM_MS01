@@ -1,7 +1,7 @@
 /**********************************************************************************************************************
  *  FILE DESCRIPTION
  *  -----------------------------------------------------------------------------------------------------------------*/
-/**        \file  Nvic.c
+/**        \file  Wdt.c
  *        \brief  
  *
  *      \details  
@@ -12,22 +12,12 @@
 /**********************************************************************************************************************
  *  INCLUDES
  *********************************************************************************************************************/
-#include "Nvic.h"
-#include "mcu_hw.h"
-#include "Nvic_cfg.h"
+#include "Std_Types.h"
+#include "platform_Types.h" 
 
 /**********************************************************************************************************************
 *  LOCAL MACROS CONSTANT\FUNCTION
 *********************************************************************************************************************/
-#define NVIC_GROUPING_SYSTEM_XXX 	4
-#define	NVIC_GROUPING_SYSTEM_XXY 	5
-#define	NVIC_GROUPING_SYSTEM_XYY 	6
-#define	NVIC_GROUPING_SYSTEM_YYY 	7
-
-#define APINT_VECTKEY 							0x05FA
-#define APINT_VECTKEY_FIRLED_OFFSET 16u
-#define PRIGROUP_FIELED_OFFSET			0x8u
-#define NVIC_REG_NUM_OF_PRI_FIELDS	4u
 
 /**********************************************************************************************************************
  *  LOCAL DATA 
@@ -51,65 +41,67 @@
 
 
 /******************************************************************************
-* \Syntax          : Svoid NVIC_init(void)        
-* \Description     : NVIC initialization                                    
+* \Syntax          : void Wdg_Init ( const Wdg_ConfigType* ConfigPtr )        
+* \Description     : Describe this service                                    
 *                                                                             
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : None                     
+* \Parameters (in) : parameterName   Parameter Describtion                     
 * \Parameters (out): None                                                      
-* \Return value:   : void
+* \Return value:   : void  
 *******************************************************************************/
-void NVIC_init(void)
+/*void Wdg_Init ( const Wdg_ConfigType* ConfigPtr )
 {
-	Nvic_IntType intNum;
-	uint8 locGroup, locSubGroup,i,locGroupingField;
-	uint32 enRegOffset, enBitOffset;
-	uint32 priRegOffset, priBitOffset;
+	/* TODO 1. Load the WDTLOAD register with the WdgInitialTimeout in configuration struct  */
 	
-	/* configure grouping and subgrouping int APINT register in SCB */
-	APINT = (APINT_VECTKEY<<APINT_VECTKEY_FIRLED_OFFSET)
-					|(NVIC_GROUPING_SYSTEM << PRIGROUP_FIELED_OFFSET);
+	/* TODO 2 wait for the WRC bit in the WDTCTL register to be set. */
 	
-	for(i=0; i< NVIC_ACTIVATED_INT_SIZE ;i++)
+	/* TODO 3. set the RESEN bit in the WDTCTL register. */
+	
+	/* TODO 4. If WDT1, wait for the WRC bit in the WDTCTL register to be set. */
+	
+	
+	/* TODO 5. Set the INTEN bit in the WDTCTL register to enable the Watchdog  enable interrupts
+
+    /* TODO 6 lock  TODO the control register. */
+	
+	
+	
+	
+//}
+
+/******************************************************************************
+* \Syntax          : void Wdg_SetTriggerCondition ( uint16 timeout )        
+* \Description     : Describe this service                                    
+*                                                                             
+* \Sync\Async      : Synchronous                                               
+* \Reentrancy      : Non Reentrant                                             
+* \Parameters (in) :                        
+* \Parameters (out): None                                                      
+* \Return value:   : void  
+*******************************************************************************/
+void Wdg_SetTriggerCondition ( uint16 timeout )
+{
+	/*The timeout value passed shall be interpreted as 'milliseconds'.
+	The conversion from milliseconds to the corresponding counter value shall be done internally by the Wdg module*/
+	
+	/* In case the counter value stored inside watchdog has the value "0", 
+	the service Wdg_SetTriggerCondition shall do nothing,
+	which means it shall ignore the counter passed by the parameter*/
+	
+	
+	/*TODO check if timeout < WdgMaxTimeout */
+/*	if(timeout > WdgMaxTimeout)
 	{
-		intNum			= NVIC_Cfg[i].Interupt_Number;
-		locGroup		= NVIC_Cfg[i].Group_Priority;
-		locSubGroup = NVIC_Cfg[i].SubGroup_Priority;
-		
-		/* enable\disable based on user configuration */
-		enRegOffset = (intNum/WORD_LENGTH_BITS)*WORD_LENGTH_BYTES;
-		enBitOffset = intNum%WORD_LENGTH_BITS;
-			
-		GET_HWREG(NVIC_BASE_ADDRESS,enRegOffset) |= (1 << enBitOffset);
-				
-		
-#if NVIC_GROUPING_SYSTEM == NVIC_GROUPING_SYSTEM_XXX
-			locGroupingField = locGroup;
-			
-#elif NVIC_GROUPING_SYSTEM == NVIC_GROUPING_SYSTEM_XXY
-			locGroupingField = ((locGroup<<1)&0x6) | (locSubGroup&0x1);
-			
-#elif NVIC_GROUPING_SYSTEM == NVIC_GROUPING_SYSTEM_XYY
-        locGroupingField = ((locGroup<<2)&0x4) | (locSubGroup&0x3);
-			
-#elif NVIC_GROUPING_SYSTEM == NVIC_GROUPING_SYSTEM_YYY
-        locGroupingField = locGroup;
-#else
-     #error INVALID GROUPING SELECTION			
-#endif
-			
-			/* asign group\subgroup priority */
-		
-			priRegOffset = (intNum/NVIC_REG_NUM_OF_PRI_FIELDS)*WORD_LENGTH_BYTES;
-			priBitOffset = 5 + (8 * (intNum%NVIC_REG_NUM_OF_PRI_FIELDS));
-			GET_HWREG(NVIC_PRI_BASE_ADDRESS,priRegOffset) |= (locGroupingField << priBitOffset);
-		
-		
-	}	
+		/*Report to Det*/
+//	}
+	
+	/* TODO  Load the WDTLOAD register with the timeout value */
+	
+	
+	
 }
 
 /**********************************************************************************************************************
- *  END OF FILE: Nvic.c
+ *  END OF FILE: FileName.c
  *********************************************************************************************************************/
-
