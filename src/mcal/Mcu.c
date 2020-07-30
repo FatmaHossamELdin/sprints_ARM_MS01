@@ -29,6 +29,8 @@
 static const Mcu_ConfigType* Mcu_ConfigPtr = NULL_PTR;
 static Mcu_StatusType Mcu_Status = MCU_NOT_INITIALIZED;
 
+volatile uint32 GlobalSystemClock;
+
 /**********************************************************************************************************************
  *  GLOBAL DATA
 *********************************************************************************************************************/
@@ -186,6 +188,7 @@ Std_ReturnType Mcu_InitClock( Mcu_ClockType ClockSetting)
 				RCC.B.SYSDIV = (locSourceFreq_MHz / (Mcu_ConfigPtr[ClockSetting].Freq_KHz/1000))-1;	
 	    	}	
 	    }
+			GlobalSystemClock = Mcu_ConfigPtr[ClockSetting].Freq_KHz;
         ret = E_OK;
     }
 	return ret;

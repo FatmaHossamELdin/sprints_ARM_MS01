@@ -60,7 +60,7 @@ static const uint32 Port_BaseAddr[MAX_NUMBER_OF_GPIO_PORTS] = {GPIO_APB_BASE_ADD
 Dio_LevelType Dio_ReadChannel ( Dio_ChannelType ChannelId )
 {
 	Dio_LevelType level;
-	uint8 gpioDataOffset;
+	uint32 gpioDataOffset;
 	uint32 portIndex,pinIndex,PortBaseAddr;
 	
 	portIndex = ChannelId / CHANNEL_SIZE_IN_PORT;
@@ -68,7 +68,7 @@ Dio_LevelType Dio_ReadChannel ( Dio_ChannelType ChannelId )
 	
 	PortBaseAddr = Port_BaseAddr[portIndex];
 	
-	gpioDataOffset = (1<<(2 + pinIndex));
+	gpioDataOffset = 4 * (1<<pinIndex);
 	level = (*((uint32*)(PortBaseAddr+gpioDataOffset))) >> pinIndex;
 	
 	return level;
@@ -85,7 +85,7 @@ Dio_LevelType Dio_ReadChannel ( Dio_ChannelType ChannelId )
 *******************************************************************************/
 void Dio_WriteChannel ( Dio_ChannelType ChannelId, Dio_LevelType Level )
 {
-	uint8 gpioDataOffset;
+	uint32 gpioDataOffset;
 	uint32 portIndex,pinIndex,PortBaseAddr;
 	
 	portIndex = ChannelId / CHANNEL_SIZE_IN_PORT;
@@ -93,8 +93,8 @@ void Dio_WriteChannel ( Dio_ChannelType ChannelId, Dio_LevelType Level )
 	
 	PortBaseAddr = Port_BaseAddr[portIndex];
 	
-	gpioDataOffset = (1<<(2 + pinIndex));
-	*((uint32*)(PortBaseAddr+gpioDataOffset)) = (Level<<pinIndex);
+	gpioDataOffset = 4 * (1<<pinIndex);
+	*((uint32 volatile*)(PortBaseAddr+gpioDataOffset)) = (Level<<pinIndex);
 	
 }
 /******************************************************************************
@@ -110,7 +110,7 @@ void Dio_WriteChannel ( Dio_ChannelType ChannelId, Dio_LevelType Level )
 Dio_PortLevelType Dio_ReadPort ( Dio_PortType PortId )
 {
 	Dio_PortLevelType portLevel;
-	uint8 gpioDataOffset = 0b11111111;
+	uint32 gpioDataOffset = 0X3FC;
 	uint32 PortBaseAddr;
 	PortBaseAddr = Port_BaseAddr[PortId];
 	
@@ -131,7 +131,7 @@ Dio_PortLevelType Dio_ReadPort ( Dio_PortType PortId )
 *******************************************************************************/
 void Dio_WritePort ( Dio_PortType PortId, Dio_PortLevelType Level )
 {
-	uint8 gpioDataOffset = 0b11111111;
+	uint32 gpioDataOffset = 0x3FC;
 	uint32 PortBaseAddr;
 	
 	PortBaseAddr = Port_BaseAddr[PortId];

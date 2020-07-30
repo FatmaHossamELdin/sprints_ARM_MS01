@@ -2,19 +2,19 @@
 
  *  FILE DESCRIPTION
  *  -------------------------------------------------------------------------------------------------------------------
- *         File:  Wdt.h
+ *         File:  Wdt_Cfg.h
  *       Module:  -
  *
  *  Description:  <Write File DESCRIPTION here>     
  *  
  *********************************************************************************************************************/
-#ifndef WDT_H
-#define WDT_H
+#ifndef WDT_CFG_H
+#define WDT_CFG_H
 
 /**********************************************************************************************************************
  * INCLUDES
  *********************************************************************************************************************/
-#include "platform_Types.h"
+#define WDT_BASE_ADDRESS 			WDT_1_BASE_ADDRESS
 
 /**********************************************************************************************************************
  *  GLOBAL CONSTANT MACROS
@@ -29,27 +29,7 @@
 /**********************************************************************************************************************
  *  GLOBAL DATA TYPES AND STRUCTURES
  *********************************************************************************************************************/
-typedef uint32 WdgInitialTimeout;
-typedef uint32 WdgMaxTimeout ;
 
-
-typedef enum{
-	NOTIFICATION_DISABLE,
-	NOTIFICATION_ENABLE
-}WdgNotificationEnable;
-
-typedef enum{
-	WDG_TIMER_INT_STANDARD,
-	WDG_TIMER_INT_NON_MASKABLE
-}WdgInterruptType;
-
-
-typedef struct{
-	WdgNotificationEnable			notificationEn;
-	WdgInterruptType					interruptType;
-	WdgInitialTimeout					intialTimeout;
-	WdgMaxTimeout							maxTimeout;
-}Wdg_ConfigType;
 
 /**********************************************************************************************************************
  *  GLOBAL DATA PROTOTYPES
@@ -61,8 +41,8 @@ typedef struct{
  *********************************************************************************************************************/
 
  
-#endif  /* WDT_H */
+#endif  /* WDT_CFG_H */
 
 /**********************************************************************************************************************
- *  END OF FILE: Wdt.h
+ *  END OF FILE: Wdt_Cfg.h
  *********************************************************************************************************************/

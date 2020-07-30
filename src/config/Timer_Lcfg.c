@@ -19,7 +19,7 @@
 /**********************************************************************************************************************
 *  LOCAL MACROS CONSTANT\FUNCTION
 *********************************************************************************************************************/
-
+void Gpt_NotificationFn(void);
 
 /**********************************************************************************************************************
  *  LOCAL DATA 
@@ -30,9 +30,9 @@
  *********************************************************************************************************************/
 const Gpt_ConfigType Gpt_Config[GPT_ACTIVATED_CHANNELS_SIZE] =
 {
-	/* channel					channelTickFreq							channelTickMaxValue							channelMode								gptNotification */
-	{},
-	{}
+	/* channel										channelTickFreq					channelTickMaxValue					channelMode								gptNotification */
+	{GPT_16_32_BIT_TIMER0,				500,										0xFF,												GPT_CH_MODE_ONESHOT,			Gpt_NotificationFn},
+	{GPT_32_64_BIT_WIDE_TIMER1,		1000,						 				0xFFFF,											GPT_CH_MODE_CONTINUOUS,   0}
 };
 /**********************************************************************************************************************
  *  LOCAL FUNCTION PROTOTYPES
@@ -45,7 +45,10 @@ const Gpt_ConfigType Gpt_Config[GPT_ACTIVATED_CHANNELS_SIZE] =
 /**********************************************************************************************************************
  *  GLOBAL FUNCTIONS
  *********************************************************************************************************************/
-
+void Gpt_NotificationFn(void)
+{
+	
+}
 
 /******************************************************************************
 * \Syntax          : Std_ReturnType FunctionName(AnyType parameterName)        

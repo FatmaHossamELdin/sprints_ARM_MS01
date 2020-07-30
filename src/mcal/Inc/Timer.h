@@ -70,7 +70,7 @@ typedef enum
 	GPT_CH_MODE_ONESHOT
 }ChannelMode;
 
-typedef uint32* GptNotification;
+typedef void(*GptNotification)(void);
 
 typedef struct
 {
@@ -92,51 +92,47 @@ typedef struct
  *  GLOBAL FUNCTION PROTOTYPES
  *********************************************************************************************************************/
 /******************************************************************************
-* \Syntax          : Std_ReturnType FunctionName(AnyType parameterName)        
-* \Description     : Describe this service                                    
+* \Syntax          : void Gpt_Init( const Gpt_ConfigType* ConfigPtr)        
+* \Description     : Initializes the GPT driver.                                   
 *                                                                             
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : parameterName   Parameter Describtion                     
+* \Parameters (in) : ConfigPtr   Pointer to a selected configuration structure                     
 * \Parameters (out): None                                                      
-* \Return value:   : Std_ReturnType  E_OK
-*                                    E_NOT_OK                                  
+* \Return value:   : None                                 
 *******************************************************************************/
 void Gpt_Init( const Gpt_ConfigType* ConfigPtr);
 /******************************************************************************
-* \Syntax          : Std_ReturnType FunctionName(AnyType parameterName)        
-* \Description     : Describe this service                                    
+* \Syntax          : void Gpt_DisableNotification( Gpt_ChannelType Channel )        
+* \Description     : Reentrant (but not for the same timer channel)                                    
 *                                                                             
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : parameterName   Parameter Describtion                     
+* \Parameters (in) : Channel   Numeric identifier of the GPT channel.                     
 * \Parameters (out): None                                                      
-* \Return value:   : Std_ReturnType  E_OK
-*                                    E_NOT_OK                                  
+* \Return value:   : None                                 
 *******************************************************************************/
 void Gpt_DisableNotification( Gpt_ChannelType Channel );
 /******************************************************************************
-* \Syntax          : Std_ReturnType FunctionName(AnyType parameterName)        
-* \Description     : Describe this service                                    
+* \Syntax          : void Gpt_EnableNotification( Gpt_ChannelType Channel )        
+* \Description     : Enables the interrupt notification for a channel (relevant in normal mode).                                    
 *                                                                             
 * \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : parameterName   Parameter Describtion                     
+* \Reentrancy      : Reentrant (but not for the same timer channel)                                             
+* \Parameters (in) : Channel   Numeric identifier of the GPT channel.                    
 * \Parameters (out): None                                                      
-* \Return value:   : Std_ReturnType  E_OK
-*                                    E_NOT_OK                                  
+* \Return value:   : None                                 
 *******************************************************************************/
 void Gpt_EnableNotification( Gpt_ChannelType Channel );
 /******************************************************************************
-* \Syntax          : Std_ReturnType FunctionName(AnyType parameterName)        
-* \Description     : Describe this service                                    
+* \Syntax          : Gpt_GetTimeElapsed( Gpt_ChannelType Channel )        
+* \Description     : Returns the time already elapsed.                                    
 *                                                                             
 * \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : parameterName   Parameter Describtion                     
-* \Parameters (out): None                                                      
-* \Return value:   : Std_ReturnType  E_OK
-*                                    E_NOT_OK                                  
+* \Reentrancy      : Reentrant                                             
+* \Parameters (in) : Channel   Numeric identifier of the GPT channel.                    
+* \Parameters (out): Gpt_ValueType                                                      
+* \Return value:   : Gpt_ValueType  uint32                                  
 *******************************************************************************/
 Gpt_ValueType Gpt_GetTimeElapsed( Gpt_ChannelType Channel );
 
@@ -153,40 +149,38 @@ Gpt_ValueType Gpt_GetTimeElapsed( Gpt_ChannelType Channel );
 *******************************************************************************/
 Std_ReturnType Gpt_GetPredefTimerValue( Gpt_PredefTimerType PredefTimer, uint32* TimeValuePtr);
 /******************************************************************************
-* \Syntax          : Std_ReturnType FunctionName(AnyType parameterName)        
-* \Description     : Describe this service                                    
+* \Syntax          : Gpt_ValueType Gpt_GetTimeRemaining( Gpt_ChannelType Channel )       
+* \Description     : Returns the time remaining until the target time is reached.                                    
 *                                                                             
 * \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : parameterName   Parameter Describtion                     
+* \Reentrancy      : Reentrant                                             
+* \Parameters (in) : Channel   Numeric identifier of the GPT channel.                     
 * \Parameters (out): None                                                      
-* \Return value:   : Std_ReturnType  E_OK
-*                                    E_NOT_OK                                  
+* \Return value:   : Gpt_ValueType  uint32                                 
 *******************************************************************************/
 Gpt_ValueType Gpt_GetTimeRemaining( Gpt_ChannelType Channel );
 /******************************************************************************
-* \Syntax          : Std_ReturnType FunctionName(AnyType parameterName)        
-* \Description     : Describe this service                                    
+* \Syntax          : void Gpt_StartTimer( Gpt_ChannelType Channel, Gpt_ValueType Value );        
+* \Description     : Starts a timer channel.                                   
 *                                                                             
 * \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : parameterName   Parameter Describtion                     
+* \Reentrancy      : Reentrant(but not for the same timer channel)                                             
+* \Parameters (in) : Channel   Numeric identifier of the GPT channel. 
+*										 Value		 Target time in number of ticks.
 * \Parameters (out): None                                                      
-* \Return value:   : Std_ReturnType  E_OK
-*                                    E_NOT_OK                                  
+* \Return value:   : None                                 
 *******************************************************************************/
 void Gpt_StartTimer( Gpt_ChannelType Channel, Gpt_ValueType Value );
 
 /******************************************************************************
-* \Syntax          : Std_ReturnType FunctionName(AnyType parameterName)        
-* \Description     : Describe this service                                    
+* \Syntax          : void Gpt_StopTimer( Gpt_ChannelType Channel )       
+* \Description     : Stops a timer channel.                                    
 *                                                                             
 * \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : parameterName   Parameter Describtion                     
+* \Reentrancy      : Reentrant (but not for the same timer channel)                                             
+* \Parameters (in) : Channel   Numeric identifier of the GPT channel.                     
 * \Parameters (out): None                                                      
-* \Return value:   : Std_ReturnType  E_OK
-*                                    E_NOT_OK                                  
+* \Return value:   : None                           
 *******************************************************************************/
 void Gpt_StopTimer( Gpt_ChannelType Channel );
 /******************************************************************************
