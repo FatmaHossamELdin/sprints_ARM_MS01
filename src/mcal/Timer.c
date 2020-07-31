@@ -269,8 +269,16 @@ Gpt_ValueType Gpt_GetTimeElapsed( Gpt_ChannelType Channel )
 	GptChannelTickValueMax  	locChannelMaxValue;
 	
 	gptBaseAddress = Gpt_BaseAddress[Channel];
-	locChannelTickFreq = globalGptConfig[i].channelTickFreq;
-	locChannelMaxValue = globalGptConfig[i].channelTickMaxValue;
+	for(i=0;i<MAX_NUMBER_OF_GPIO_GPT;i++)
+	{
+		if (globalGptConfig[i].channel == Channel)
+		{
+			locChannelTickFreq = globalGptConfig[i].channelTickFreq;
+			locChannelMaxValue = globalGptConfig[i].channelTickMaxValue;
+			
+			break;
+		}
+	}
 	
 	prescale = GlobalSystemClock / locChannelTickFreq;
 	
@@ -350,8 +358,17 @@ Gpt_ValueType Gpt_GetTimeRemaining( Gpt_ChannelType Channel )
 	GptChannelTickValueMax  	locChannelMaxValue;
 	
 	gptBaseAddress = Gpt_BaseAddress[Channel];
-	locChannelTickFreq = globalGptConfig[i].channelTickFreq;
-	locChannelMaxValue = globalGptConfig[i].channelTickMaxValue;
+	
+	for(i=0;i<MAX_NUMBER_OF_GPIO_GPT;i++)
+	{
+		if (globalGptConfig[i].channel == Channel)
+		{
+			locChannelTickFreq = globalGptConfig[i].channelTickFreq;
+			locChannelMaxValue = globalGptConfig[i].channelTickMaxValue;
+			
+			break;
+		}
+	}
 	
 	prescale = GlobalSystemClock / locChannelTickFreq;
 	
@@ -398,7 +415,14 @@ void Gpt_StartTimer( Gpt_ChannelType Channel, Gpt_ValueType Value )
 	Gpt_ChannelTickFrequency 	locChannelTickFreq;
 	
 	gptBaseAddress = Gpt_BaseAddress[Channel];
-	locChannelTickFreq = globalGptConfig[i].channelTickFreq;
+		for(i=0;i<MAX_NUMBER_OF_GPIO_GPT;i++)
+	{
+		if (globalGptConfig[i].channel == Channel)
+		{
+			locChannelTickFreq = globalGptConfig[i].channelTickFreq;			
+			break;
+		}
+	}
 	
 	prescale = GlobalSystemClock / locChannelTickFreq;
 	
