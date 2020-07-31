@@ -25,12 +25,16 @@
 #define TBEN 		8
 
 #define TACDIR	4
+
+#define PREDEF_TIMER					GPT_32_64_BIT_WIDE_TIMER4
 /**********************************************************************************************************************
  *  LOCAL DATA 
  *********************************************************************************************************************/
-static GptNotification						locGptNotification;
-static Gpt_ChannelTickFrequency 	locChannelTickFreq;
-static GptChannelTickValueMax  		locChannelTickMaxValue;
+GptNotification	locGptNotification[MAX_NUMBER_OF_GPIO_GPT];
+
+static const Gpt_ConfigType*			globalGptConfig;
+static volatile uint32 gptPredefTimer_1USPrescale;
+static volatile uint32 gptPredefTimer_100US_32BitPrescale;
 /**********************************************************************************************************************
  *  GLOBAL DATA
  *********************************************************************************************************************/
@@ -50,7 +54,7 @@ static const uint32 Gpt_BaseAddress[MAX_NUMBER_OF_GPIO_GPT] = {GPT_16_32_BIT_TIM
 /**********************************************************************************************************************
  *  LOCAL FUNCTION PROTOTYPES
  *********************************************************************************************************************/
-static void Gpt_NotificationFn(void);
+
 /**********************************************************************************************************************
  *  LOCAL FUNCTIONS
  *********************************************************************************************************************/
@@ -72,11 +76,13 @@ static void Gpt_NotificationFn(void);
 *******************************************************************************/
 void Gpt_Init( const Gpt_ConfigType* ConfigPtr)
 {
-	uint8 i;
+	uint32 i,prescale;
 	uint32 gptBaseAddress;
-	Gpt_ChannelType  	locChannel;
-	ChannelMode				locChannelMode;
-	
+	Gpt_ChannelType  					locChannel;
+	ChannelMode								locChannelMode;
+	Gpt_ChannelTickFrequency 	locChannelTickFreq;
+	GptChannelTickValueMax  	locChannelTickMaxValue;
+	globalGptConfig = ConfigPtr;
 	
 	for(i=0;i<GPT_ACTIVATED_CHANNELS_SIZE;i++)
 	{
@@ -84,6 +90,8 @@ void Gpt_Init( const Gpt_ConfigType* ConfigPtr)
 		locChannelTickFreq				= ConfigPtr[i].channelTickFreq;
 		locChannelTickMaxValue		= ConfigPtr[i].channelTickMaxValue;
 		locChannelMode						= ConfigPtr[i].channelMode;
+		
+		locGptNotification[locChannel]= ConfigPtr[i].gptNotification;
 		
 		gptBaseAddress = Gpt_BaseAddress[locChannel];
 		GPTMCTL(gptBaseAddress) =	0;
@@ -94,7 +102,7 @@ void Gpt_Init( const Gpt_ConfigType* ConfigPtr)
 		*/
 		GPTMCFG(gptBaseAddress) = 0x4;
 		
-			/* counting up */
+		/* counting up */
 		GPTMTAMR(gptBaseAddress) |= (1<<TACDIR);
 		
 		/* channel mode */
@@ -110,39 +118,104 @@ void Gpt_Init( const Gpt_ConfigType* ConfigPtr)
 		/* Disablling interupt notifation */
 		Gpt_DisableNotification(locChannel);
 	}		
-		/* Predef timers */
+	
+		
+/* Predef timers */
+	gptPredefTimer_1USPrescale = GlobalSystemClock / 1000;
+	for(i=2;;i*=2)
+	{
+		if(gptPredefTimer_1USPrescale/i == 1)
+		{
+			if(gptPredefTimer_1USPrescale%i <= (i/2))
+			{
+				gptPredefTimer_1USPrescale = i;
+			}
+			else
+			{
+				gptPredefTimer_1USPrescale = i*2;
+			}
+			break;
+		}
+	}	
+	gptPredefTimer_100US_32BitPrescale = GlobalSystemClock / 10;
+	for(i=2;;i*=2)
+	{
+		if(gptPredefTimer_100US_32BitPrescale/i == 1)
+		{
+			if(gptPredefTimer_100US_32BitPrescale%i <= (i/2))
+			{
+				gptPredefTimer_100US_32BitPrescale = i;
+			}
+			else
+			{
+				gptPredefTimer_100US_32BitPrescale = i*2;
+			}
+			break;
+		}
+	}	
+	
 #if GPT_PREDEF_TIMER_1US_16BIT_STATUS == Enable
-
-#else
+	gptBaseAddress = Gpt_BaseAddress[PREDEF_TIMER];
+	GPTMCTL(gptBaseAddress) =	0;
+	GPTMCFG(gptBaseAddress) = 0x4;
+	/* counting up */
+	GPTMTAMR(gptBaseAddress) |= (1<<TACDIR);
+	/* continuous mode*/
+	GPTMTAMR(gptBaseAddress) |= 0x2;
+	/* Disablling interupt notifation */
+	Gpt_DisableNotification(PREDEF_TIMER);	
+	
+	GPTMTAILR(gptBaseAddress) = 0xFFFF * gptPredefTimer_1USPrescale;
 		
 #endif
-		
+	
 #if GPT_PREDEF_TIMER_1US_24BIT_STATUS == Enable
-
-#else
-		
+	gptBaseAddress = Gpt_BaseAddress[PREDEF_TIMER];
+	GPTMCTL(gptBaseAddress) =	0;
+	GPTMCFG(gptBaseAddress) = 0x4;
+	/* counting up */
+	GPTMTAMR(gptBaseAddress) |= (1<<TACDIR);
+	/* continuous mode*/
+	GPTMTAMR(gptBaseAddress) |= 0x2; 
+	/* Disablling interupt notifation */
+	Gpt_DisableNotification(PREDEF_TIMER);	
+	
+	GPTMTAILR(gptBaseAddress) = 0xFFFFFF * gptPredefTimer_1USPrescale;
+	
 #endif
 
 #if GPT_PREDEF_TIMER_1US_32BIT_STATUS == Enable
-
-#else	
-		
+	gptBaseAddress = Gpt_BaseAddress[PREDEF_TIMER];
+	GPTMCTL(gptBaseAddress) =	0;
+	GPTMCFG(gptBaseAddress) = 0x4;
+	/* counting up */
+	GPTMTAMR(gptBaseAddress) |= (1<<TACDIR);	
+	/* continuous mode*/
+	GPTMTAMR(gptBaseAddress) |= 0x2; 
+	/* Disablling interupt notifation */
+	Gpt_DisableNotification(PREDEF_TIMER);
+	
+	GPTMTAILR(gptBaseAddress) = 0xFFFFFFFF * gptPredefTimer_1USPrescale;
+	
 #endif
 		
 #if GPT_PREDEF_TIMER_100US_32BIT_STATUS == Enable
-
-#else
-
+	gptBaseAddress = Gpt_BaseAddress[PREDEF_TIMER];
+	GPTMCTL(gptBaseAddress) =	0;
+	GPTMCFG(gptBaseAddress) = 0x4;
+	/* counting up */
+	GPTMTAMR(gptBaseAddress) |= (1<<TACDIR);
+		/* continuous mode*/
+	GPTMTAMR(gptBaseAddress) |= 0x2;
+	/* Disablling interupt notifation */
+	Gpt_DisableNotification(PREDEF_TIMER);
+	
+	GPTMTAILR(gptBaseAddress) = 0xFFFFFFFF * gptPredefTimer_100US_32BitPrescale;
+	
 #endif	
 }
 
-void Isr_Timer(void)
-{
-	if (locGptNotification != NULL)
-	{
-		locGptNotification();
-	}
-}
+
 /******************************************************************************
 * \Syntax          : void Gpt_DisableNotification( Gpt_ChannelType Channel )        
 * \Description     : Reentrant (but not for the same timer channel)                                    
@@ -188,7 +261,37 @@ void Gpt_EnableNotification( Gpt_ChannelType Channel )
 *******************************************************************************/
 Gpt_ValueType Gpt_GetTimeElapsed( Gpt_ChannelType Channel )
 {
+	Gpt_ValueType value;
+	uint32 i;
+	uint32 prescale;
+	uint32 gptBaseAddress;
+	Gpt_ChannelTickFrequency 	locChannelTickFreq;
+	GptChannelTickValueMax  	locChannelMaxValue;
 	
+	gptBaseAddress = Gpt_BaseAddress[Channel];
+	locChannelTickFreq = globalGptConfig[i].channelTickFreq;
+	locChannelMaxValue = globalGptConfig[i].channelTickMaxValue;
+	
+	prescale = GlobalSystemClock / locChannelTickFreq;
+	
+	for(i=2;;i*=2)
+	{
+		if(prescale/i == 1)
+		{
+			if(prescale%i <= (i/2))
+			{
+				prescale = i;
+			}
+			else
+			{
+				prescale = i*2;
+			}
+			break;
+		}
+	}
+	value = (GPTMTAV(gptBaseAddress) / prescale) & locChannelMaxValue;
+	
+	return value;
 }
 
 /******************************************************************************
@@ -204,6 +307,26 @@ Gpt_ValueType Gpt_GetTimeElapsed( Gpt_ChannelType Channel )
 *******************************************************************************/
 Std_ReturnType Gpt_GetPredefTimerValue( Gpt_PredefTimerType PredefTimer, uint32* TimeValuePtr)
 {
+	Std_ReturnType returnValue = E_NOT_OK;
+	uint32 gptBaseAddress;
+	
+	gptBaseAddress = Gpt_BaseAddress[PREDEF_TIMER];
+	if (PredefTimer == GPT_PREDEF_TIMER_1US_16BIT )
+	{
+		*TimeValuePtr = (GPTMTAV(gptBaseAddress) / gptPredefTimer_1USPrescale) & 0xFFFF;
+	}
+	else if (PredefTimer == GPT_PREDEF_TIMER_1US_24BIT )
+	{
+		*TimeValuePtr = (GPTMTAV(gptBaseAddress) / gptPredefTimer_1USPrescale) & 0xFFFFFF;
+	}
+	else if (PredefTimer == GPT_PREDEF_TIMER_1US_32BIT )
+	{
+		*TimeValuePtr = (GPTMTAV(gptBaseAddress) / gptPredefTimer_1USPrescale) & 0xFFFFFFFF;
+	}
+	else if (PredefTimer == GPT_PREDEF_TIMER_100US_32BIT )
+	{
+		*TimeValuePtr = (GPTMTAV(gptBaseAddress) / gptPredefTimer_100US_32BitPrescale) & 0xFFFFFFFF;
+	}
 	
 }
 
@@ -219,7 +342,40 @@ Std_ReturnType Gpt_GetPredefTimerValue( Gpt_PredefTimerType PredefTimer, uint32*
 *******************************************************************************/
 Gpt_ValueType Gpt_GetTimeRemaining( Gpt_ChannelType Channel )
 {
+	Gpt_ValueType value, currentValue, remainingValue;
+	uint32 i;
+	uint32 prescale;
+	uint32 gptBaseAddress;
+	Gpt_ChannelTickFrequency 	locChannelTickFreq;
+	GptChannelTickValueMax  	locChannelMaxValue;
 	
+	gptBaseAddress = Gpt_BaseAddress[Channel];
+	locChannelTickFreq = globalGptConfig[i].channelTickFreq;
+	locChannelMaxValue = globalGptConfig[i].channelTickMaxValue;
+	
+	prescale = GlobalSystemClock / locChannelTickFreq;
+	
+	for(i=2;;i*=2)
+	{
+		if(prescale/i == 1)
+		{
+			if(prescale%i <= (i/2))
+			{
+				prescale = i;
+			}
+			else
+			{
+				prescale = i*2;
+			}
+			break;
+		}
+	}
+	currentValue = (GPTMTAV(gptBaseAddress) / prescale) & locChannelMaxValue;
+	value = (GPTMTAILR(gptBaseAddress) / prescale) & locChannelMaxValue;
+	
+	remainingValue = value - currentValue;
+	
+	return remainingValue;
 }
 
 
@@ -239,9 +395,13 @@ void Gpt_StartTimer( Gpt_ChannelType Channel, Gpt_ValueType Value )
 	uint32 i;
 	uint32 prescale;
 	uint32 gptBaseAddress;
+	Gpt_ChannelTickFrequency 	locChannelTickFreq;
+	
 	gptBaseAddress = Gpt_BaseAddress[Channel];
+	locChannelTickFreq = globalGptConfig[i].channelTickFreq;
 	
 	prescale = GlobalSystemClock / locChannelTickFreq;
+	
 	for(i=2;;i*=2)
 	{
 		if(prescale/i == 1)

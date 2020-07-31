@@ -19,7 +19,7 @@
  *  GLOBAL CONSTANT MACROS
  *********************************************************************************************************************/
 #define MCU_PERFORM_RESET_API								STD_ON
-#define MCU_ACTIVATED_CLOCK_GATES_SIZE      9
+#define MCU_ACTIVATED_CLOCK_GATES_SIZE      10
 #define MCU_CLOCK_SETTING_SIZE							2
 
 #define MCU_XTAL_CLOCK_FREQ_MHZ             16
